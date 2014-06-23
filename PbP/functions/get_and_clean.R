@@ -141,5 +141,10 @@ playType <- function(playDesc) {
     play[grepl("\\b(kicked ball)\\b", playDesc, ignore.case=TRUE)] <- "kicked ball"
     play[grepl("\\s(vs.)\\s", playDesc, ignore.case=TRUE)] <- "jump ball"
     play[grepl("^End", playDesc, ignore.case=TRUE) | grepl("^Start", playDesc, ignore.case=TRUE)] <- "buzzer"
+    play[grepl("\\b(turnover)\\b", playDesc, ignore.case=TRUE)] <- "turnover"
+    play[grepl("\\b(blocks)\\b", playDesc, ignore.case=TRUE)] <- "blocked shot"
+    play[grepl("\\b(kicked ball)\\b", playDesc, ignore.case=TRUE)] <- "kicked ball"
+    play[grepl("\\s(vs.)\\s", playDesc, ignore.case=TRUE)] <- "jump ball"
+    play[grepl("^End of", playDesc, ignore.case=TRUE)] <- "buzzer"
     return(play)
 }
