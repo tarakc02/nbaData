@@ -7,8 +7,10 @@ getPbPData <- function(ESPNPbP, gameId) {
         PbPURL <- sub("__GAMEID__", gameId, ESPNPbP)
         PbP <- readHTMLTable(PbPURL, stringsAsFactors=FALSE, encoding = "UTF-8")
         
-        # it's a bit of a hack to assume that this will always work
-        return(PbP[[length(PbP)]])
+        res <- PbP[[length(PbP)]]
+        attr(res, "summary") <- PbP[[length(PbP)-1]]
+        
+        return(res)
     }
 }
 
