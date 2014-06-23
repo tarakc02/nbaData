@@ -5,7 +5,7 @@ getPbPData <- function(ESPNPbP, gameId) {
     # converting the HTML table
     if (require(XML) & require(RCurl)) {
         PbPURL <- sub("__GAMEID__", gameId, ESPNPbP)
-        PbP <- readHTMLTable(PbPURL, stringsAsFactors=FALSE)
+        PbP <- readHTMLTable(PbPURL, stringsAsFactors=FALSE, encoding = "UTF-8")
         
         # it's a bit of a hack to assume that this will always work
         return(PbP[[length(PbP)]])
@@ -89,25 +89,57 @@ fillSpaces <- function(val) {
 
 cleanPbP <- function(PbP) {
     names(PbP) <- c("time", "away", "score", "home")
-    PbP$period <- getQuarterIndexes(PbP[,1])
-    PbP$period <- fillSpaces(PbP$period)
+    
+    # add column for what quarter it is
+    PbP$period <- getQuarterIndexes(PbP[,1]) %>% 
+        fillSpaces()
+    
+    # eliminate rows that aren't part of the PbP
     PbP <- PbP[grep(":", PbP$time),]
+    
+    #artificial record numbering system.
     rownames(PbP) <- seq(nrow(PbP))
+    
+    # convert time from mm:ss to total seconds remaining
     times <- do.call(rbind, strsplit(PbP$time, ":"))
     PbP$seconds_left <- (as.integer(times[,1]) *60) + as.integer(times[,2])  
-    PbP$team <- ifelse(PbP[,2]=="?", "home", "away")
-    PbP$play_desc <- ifelse(PbP[,2]=="?", PbP[,4], PbP[,2])
-    PbP$play <- playType(PbP$play_desc)
+    
+    # create a single column for all plays, with a separate home/away id
+    PbP$team <- ifelse(PbP[,2]=="", "home", "away")
+    PbP$playDesc <- ifelse(PbP[,2]=="", PbP[,4], PbP[,2])
+    
+    # determine the general play type in each line, and then dispatch
+    # appropriate parsing functions to return the details about the play
+    
+    # 1) playType
+    PbP$playType <- playType(PbP$playDesc)
+    
+    # 2) parse plays, using appropriate function based on play type
     return(PbP)
 }
 
 playType <- function(playDesc) {
     playDesc <- gsub("\\s{1,}", " ", playDesc)
+    playDesc <- gsub("<.+> ", "", playDesc)
+    
+    
+    # this part needs to be cleaned up, too much repetition
     play <- rep(as.character(NA), length(playDesc))
     play[grepl("(makes|misses)", playDesc, ignore.case=TRUE)] <- "shot"
     play[grepl("free throw", playDesc, ignore.case=TRUE)] <- "free throw"  
     play[grepl("timeout", playDesc, ignore.case=TRUE)] <- "timeout"
     play[grepl("rebound", playDesc, ignore.case=TRUE)] <- "rebound"  
     play[grepl("enters the game", playDesc, ignore.case=TRUE)] <- "substitution"  
+    play[grepl("\\b(foul)\\b", playDesc, ignore.case=TRUE)] <- "foul"
+    play[grepl("\\b(traveling)\\b", playDesc, ignore.case=TRUE)] <- "traveling"
+    play[grepl("\\b(bad pass)\\b", playDesc, ignore.case=TRUE)] <- "bad pass"
+    play[grepl("\\b(lost ball)\\b", playDesc, ignore.case=TRUE)] <- "lost ball"
+    play[grepl("\\b(turnover)\\b", playDesc, ignore.case=TRUE)] <- "turnover"
+    play[grepl("\\b(blocks)\\b", playDesc, ignore.case=TRUE)] <- "blocked shot"
+    play[grepl("shot clock", playDesc, ignore.case=TRUE)] <- "shot clock violation"
+    play[grepl("delay of game", playDesc, ignore.case=TRUE)] <- "delay of game"
+    play[grepl("\\b(kicked ball)\\b", playDesc, ignore.case=TRUE)] <- "kicked ball"
+    play[grepl("\\s(vs.)\\s", playDesc, ignore.case=TRUE)] <- "jump ball"
+    play[grepl("^End", playDesc, ignore.case=TRUE) | grepl("^Start", playDesc, ignore.case=TRUE)] <- "buzzer"
     return(play)
 }

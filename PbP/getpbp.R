@@ -16,6 +16,11 @@ PbPOlder_clean <- cleanPbP(PbPOlder)
 shotRaw <- getShotData(ESPNShot, gameId)
 shotDF <- cleanShotData(shotRaw)
 
+
+
+
+
+
 play_anon <- gsub("<.+> ", "", PbP_clean[is.na(PbP_clean$play),"play_desc"])
 play_anon <- gsub("\\s{1,}", " ", play_anon)
 play_anon <- gsub("(\\s*\\b([A-Z][a-zA-z0-9]+)\\b)+", "__NAME__", play_anon)
