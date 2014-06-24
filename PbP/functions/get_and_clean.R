@@ -9,6 +9,7 @@ getPbPData <- function(ESPNPbP, gameId) {
         
         res <- PbP[[length(PbP)]]
         attr(res, "summary") <- PbP[[length(PbP)-1]]
+        attr(res, "gameID") <- gameId
         
         return(res)
     }
@@ -90,6 +91,7 @@ fillSpaces <- function(val) {
 }
 
 cleanPbP <- function(PbP) {
+    gameId <- attr(PbP, "gameID")
     names(PbP) <- c("time", "away", "score", "home")
     
     # add column for what quarter it is
@@ -98,9 +100,10 @@ cleanPbP <- function(PbP) {
     
     # eliminate rows that aren't part of the PbP
     PbP <- PbP[grep(":", PbP$time),]
+    PbP <- PbP[!is.na(PbP$score),]
     
     #artificial record numbering system.
-    rownames(PbP) <- seq(nrow(PbP))
+    rownames(PbP) <- paste(gameId, formatC(seq(nrow(PbP)), width=4, flag="0"), sep="")
     
     # convert time from mm:ss to total seconds remaining
     times <- do.call(rbind, strsplit(PbP$time, ":"))
