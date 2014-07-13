@@ -8,6 +8,7 @@ parse_shots <- function(play_desc) {
                distance  = as.integer(parse[,5]), 
                type      = str_trim(parse[,6]), 
                assist    = str_trim(parse[,8]),
+               block     = "",
                stringsAsFactors = FALSE)                   
 }
 
@@ -32,5 +33,44 @@ parse_freethrows <- function(play_desc) {
                tech      = str_trim(parse[,4]) == "technical",
                shot      = ifelse(parse[,6] == "", 1, parse[,6]),
                out_of    = ifelse(parse[,7] == "", 1, parse[,7]),
+               stringsAsFactors = FALSE)
+}
+
+
+parse_badpass <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) bad pass( \\((.*) steals\\))?")
+    data.frame(player    = parse[,2],
+               type      = "bad pass",
+               steal     = parse[,4],
+               stringsAsFactors = FALSE)
+}
+
+parse_turnovers <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "((^|\\s)[^A-Z]+)?turnover( \\((.*) steals\\))?")
+    names <- unlist(str_split(play_desc, "((^|\\s)[^A-Z]+)?turnover( \\((.*) steals\\))?"))
+    data.frame(player    = names,
+               type      = parse[,2],
+               steal     = parse[,5],
+               stringsAsFactors = FALSE)
+}
+
+parse_blockedshots <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) blocks (.*)\\'s ([0-9]+-foot )?([a-z ]+)$")
+
+    data.frame(player    = str_trim(parse[,3]),
+               made      = FALSE,
+               distance  = str_trim(parse[,4]),
+               type      = str_trim(parse[,5]),
+               assist    = "",
+               block     = str_trim(parse[,2]),
                stringsAsFactors = FALSE)
 }
