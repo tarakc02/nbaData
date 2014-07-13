@@ -125,6 +125,7 @@ clean_pbp <- function(pbp) {
     # create a single column for all plays, with a separate home/away id
     pbp$team <- ifelse(pbp[,2]=="", "home", "away")
     pbp$play_desc <- ifelse(pbp[,2]=="", pbp[,4], pbp[,2])
+    pbp$play_desc <- gsub("\\s{1,}", " ", pbp$play_desc)
     
     # determine the general play type in each line, and then dispatch
     # appropriate parsing functions to return the details about the play
