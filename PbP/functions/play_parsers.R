@@ -133,3 +133,14 @@ parse_substitutions <- function(play_desc) {
                outgoing_player  = parse[,3],
                stringsAsFactors = FALSE)
 }
+
+parse_delays <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) delay of game")
+    
+    data.frame(player  = parse[,2],
+               type    = "delay of game",
+               stringsAsFactors = FALSE)
+}
