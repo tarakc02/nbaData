@@ -35,7 +35,6 @@ get_shots <- function(shot, game_id) {
         xmlParse() %>%
         xmlToList()
     
-    names(parsed_shots) <- sapply(parsed_shots, function(x) x["id"])
     do.call("rbind", parsed_shots) %>%
         data.frame(stringsAsFactors = FALSE)
 }
@@ -116,7 +115,7 @@ clean_pbp <- function(pbp) {
     pbp <- pbp[!is.na(pbp$score),]
     
     #artificial record numbering system.
-    rownames(pbp) <- paste(game_id, formatC(seq(nrow(pbp)), width=4, flag="0"), sep="")
+    pbp$play_id <- paste(game_id, formatC(seq(nrow(pbp)), width=4, flag="0"), sep="")
     
     # convert time from mm:ss to total seconds remaining
     times <- do.call(rbind, strsplit(pbp$time, ":"))
