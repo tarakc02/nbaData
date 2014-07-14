@@ -122,3 +122,14 @@ parse_jumpballs <- function(play_desc) {
                recover_player = str_trim(parse[,5]),
                stringsAsFactors = FALSE)
 }
+
+parse_substitutions <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) enters the game for (.*)")
+    
+    data.frame(incoming_player  = parse[,2],
+               outgoing_player  = parse[,3],
+               stringsAsFactors = FALSE)
+}
