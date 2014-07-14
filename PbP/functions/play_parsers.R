@@ -74,3 +74,51 @@ parse_blockedshots <- function(play_desc) {
                block     = str_trim(parse[,2]),
                stringsAsFactors = FALSE)
 }
+
+parse_traveling <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) traveling")
+    
+    data.frame(player    = str_trim(parse[,2]),
+               type      = "traveling",
+               steal     = "",
+               stringsAsFactors = FALSE)
+}
+
+parse_fouls <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "((^|\\s)[^A-Z()]+)?(block|foul|Charge)( \\((.*) draws the foul\\))?")
+    names <- str_split(play_desc, "((^|\\s)[^A-Z()]+)?(block|foul|Charge)( \\((.*) draws the foul\\))?")
+    data.frame(player    = sapply(names, function(x) x[1]),
+               type      = str_trim(parse[,2]),
+               foul      = str_trim(parse[,4]),
+               draw      = str_trim(parse[,6]),
+               stringsAsFactors = FALSE)
+}
+
+parse_kickedballs <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) kicked ball violation")
+    
+    data.frame(player    = str_trim(parse[,2]),
+               type      = "kicked ball",
+               stringsAsFactors = FALSE)
+}
+
+parse_jumpballs <- function(play_desc) {
+    if (!require(stringr)) {
+        stop("please install stringr")
+    }
+    parse <- str_match(play_desc, "(.*) vs. (.*) (\\((.*) gains possession\\))")
+    
+    data.frame(away_player    = str_trim(parse[,2]),
+               home_player    = str_trim(parse[,3]),
+               recover_player = str_trim(parse[,5]),
+               stringsAsFactors = FALSE)
+}
