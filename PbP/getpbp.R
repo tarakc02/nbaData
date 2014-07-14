@@ -1,4 +1,4 @@
-source("functions/get_and_clean.R")
+source("PbP/functions/get_and_clean.R")
 
 #tests:
 shot <- "http://sports.espn.go.com/nba/gamepackage/data/shot?gameId="
